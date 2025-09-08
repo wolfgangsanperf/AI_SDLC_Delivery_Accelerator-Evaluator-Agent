@@ -4,7 +4,7 @@ A FastAPI-based service that evaluates generated content using LLM-as-a-judge me
 
 ## 🚀 Features
 
-- **Multi-Metric Evaluation**: Comprehensive assessment across 6 quality dimensions
+- **Multi-Metric Evaluation**: Comprehensive assessment across 9 quality dimensions
 - **LLM-as-a-Judge**: Leverages advanced AI models for intelligent content evaluation
 - **DeepEval Integration**: Built-in support for industry-standard evaluation metrics
 - **Async Processing**: High-performance async evaluation with concurrent metric processing
@@ -14,26 +14,40 @@ A FastAPI-based service that evaluates generated content using LLM-as-a-judge me
 
 ## 📊 Evaluation Metrics
 
-The API evaluates content across six key dimensions with weighted scoring:
+The API evaluates content across nine comprehensive quality dimensions with optimized weighted scoring:
 
 | Metric | Weight | Description |
 |--------|--------|-------------|
-| **Relevance** | 25% | How well the content addresses the user's prompt |
-| **Accuracy** | 20% | Factual correctness and technical accuracy |
-| **Completeness** | 20% | Whether all necessary sections are included |
-| **Clarity** | 15% | Readability and professional language |
-| **Structure** | 10% | Proper formatting and organization |
-| **Consistency** | 10% | Internal consistency and alignment with context |
+| **Relevance** | 18% | How well the content addresses the user's prompt |
+| **Accuracy** | 15% | Factual correctness and technical accuracy |
+| **Completeness** | 15% | Whether all necessary sections are included |
+| **Hallucination Detection** | 12% | Identifies and penalizes fabricated or unsupported claims |
+| **Clarity** | 12% | Readability and professional language |
+| **Structure** | 8% | Proper formatting and organization |
+| **Consistency** | 8% | Internal consistency and alignment with context |
+| **Context Adherence** | 8% | Alignment with provided contextual information |
+| **Factual Grounding** | 4% | Verification of claims against reliable sources |
 
 ### Scoring Scale
 - **Excellent**: > 0.8
 - **Good**: 0.7 - 0.8
 - **Needs Improvement**: < 0.7
 
-### Reasoning Field Behavior
+### Advanced Features
+
+**Intelligent Reasoning System**
 The API implements intelligent reasoning inclusion based on score thresholds:
 - **Scores ≥ 0.65**: The `reasoning` field is **excluded** from the response to keep high-performing metrics clean
 - **Scores < 0.65**: The `reasoning` field is **included** with detailed explanations for improvement areas
+
+**Dual Evaluation Modes**
+- **Validation Mode**: Binary proceed/reason format for template compliance checking
+- **Comprehensive Mode**: Full multi-metric evaluation with detailed scoring
+
+**Enhanced Security**
+- **Hallucination Detection**: Advanced detection of fabricated content (threshold: 0.8)
+- **Context Adherence**: Similarity validation against provided context (threshold: 0.7)
+- **Factual Grounding**: Confidence verification for factual claims (threshold: 0.6)
 
 ## 🏗️ Architecture
 
@@ -62,9 +76,10 @@ src/
 
 ## 📋 Prerequisites
 
-- **Python**: 3.13.7
-- **Poetry**: For dependency management
+- **Python**: 3.13.7 (verified compatible with 3.12.3+)
+- **Poetry**: For dependency management and virtual environment
 - **Podman/Docker**: For containerized services (optional)
+- **Environment**: Linux/WSL compatible (Ubuntu 24.04+ recommended)
 
 ## 🚀 Quick Start
 
@@ -145,14 +160,14 @@ The API will be available at:
 ```json
 {
   "status": 200,
-  "timestamp": "2025-01-06T15:30:00",
+  "timestamp": "2025-01-09T21:35:00",
   "message": "Evaluation completed successfully",
   "body": {
     "session_id": "unique-session-id",
     "backlog_type": "user_story",
     "status": "completed",
     "evaluation_metrics": {
-      "overall_score": 0.85,
+      "overall_score": 0.82,
       "metric_scores": [
         {
           "metric": "relevance",
@@ -174,19 +189,37 @@ The API will be available at:
           "metric": "clarity",
           "score": 0.90,
           "confidence": 0.92
+        },
+        {
+          "metric": "hallucination_detection",
+          "score": 0.95,
+          "confidence": 0.88
+        },
+        {
+          "metric": "context_adherence",
+          "score": 0.87,
+          "confidence": 0.91
+        },
+        {
+          "metric": "factual_grounding",
+          "score": 0.79,
+          "confidence": 0.84
         }
       ],
-      "summary": "High-quality user story with clear intent and structure. Needs more detailed acceptance criteria.",
+      "summary": "High-quality user story with excellent relevance and minimal hallucination risk. Requires enhanced acceptance criteria for completeness.",
       "recommendations": [
-        "Add specific acceptance criteria",
-        "Include error handling scenarios",
-        "Define user authentication requirements"
+        "Add specific acceptance criteria with measurable outcomes",
+        "Include comprehensive error handling scenarios",
+        "Define detailed user authentication requirements",
+        "Enhance edge case documentation"
       ]
     },
     "evaluation_metadata": {
-      "tokens_used": 150,
-      "tokens_generated": 75,
-      "evaluation_time_ms": 1250
+      "tokens_used": 180,
+      "tokens_generated": 95,
+      "evaluation_time_ms": 1150,
+      "model_version": "gpt-4o-mini",
+      "evaluation_mode": "comprehensive"
     }
   }
 }
@@ -217,7 +250,7 @@ Returns detailed information about available evaluation metrics and their weight
 
 ## 🔧 Configuration
 
-Key configuration options in `src/config.py`:
+Key configuration options in `src/config.py` (Latest Version):
 
 ```python
 # API Configuration
@@ -226,25 +259,59 @@ API_VERSION = "1.0.0"
 HOST = "0.0.0.0"
 PORT = 8000
 
-# Portkey Configuration
+# Model Configuration
 PORTKEY_MODEL = "gpt-4o-mini"
+PORTKEY_PROVIDER = "@azure-openai"
 DEFAULT_TEMPERATURE = 0.6
 MAX_TOKENS_GENERATION = 2000
+MAX_TOKENS_SUMMARY = 200
+MAX_TOKENS_RECOMMENDATIONS = 300
 
-# Retry Configuration
+# Performance Configuration
 MAX_RETRIES = 3
 RETRY_DELAY = 1.0
 
-# Evaluation Weights
+# Updated Evaluation Weights (9 Metrics)
 METRIC_WEIGHTS = {
-    "relevance": 0.25,
-    "accuracy": 0.20,
-    "completeness": 0.20,
-    "clarity": 0.15,
-    "structure": 0.10,
-    "consistency": 0.10
+    "relevance": 0.18,
+    "accuracy": 0.15,
+    "completeness": 0.15,
+    "hallucination_detection": 0.12,
+    "clarity": 0.12,
+    "structure": 0.08,
+    "consistency": 0.08,
+    "context_adherence": 0.08,
+    "factual_grounding": 0.04
 }
+
+# Security & Quality Thresholds
+HALLUCINATION_THRESHOLD = 0.8          # Minimum score to pass hallucination detection
+CONTEXT_SIMILARITY_THRESHOLD = 0.7     # Minimum similarity to provided context
+FACTUAL_CONFIDENCE_THRESHOLD = 0.6     # Minimum confidence for factual claims
+DEEPEVAL_THRESHOLD = 0.7               # Pass/fail threshold for DeepEval metrics
 ```
+
+### Threshold Explanations
+
+**HALLUCINATION_THRESHOLD (0.8)**
+- **Purpose**: Detects fabricated or unsupported claims in generated content
+- **How it works**: Content scoring below 0.8 is flagged as potentially containing hallucinations
+- **Impact**: Higher threshold = stricter hallucination detection, more conservative evaluation
+
+**CONTEXT_SIMILARITY_THRESHOLD (0.7)**  
+- **Purpose**: Ensures generated content aligns with provided contextual information
+- **How it works**: Measures semantic similarity between generated content and input context
+- **Impact**: Content must be at least 70% similar to context to pass adherence checks
+
+**FACTUAL_CONFIDENCE_THRESHOLD (0.6)**
+- **Purpose**: Validates confidence level of factual claims made in the content
+- **How it works**: AI model's confidence in factual statements must exceed 60%
+- **Impact**: Low-confidence facts trigger reasoning explanations and lower scores
+
+**DEEPEVAL_THRESHOLD (0.7)**
+- **Purpose**: Binary pass/fail criterion for DeepEval framework metrics
+- **How it works**: Metrics scoring above 0.7 are considered "passing" quality
+- **Impact**: Used for quick quality gates and automated decision making
 
 ## 🐳 Infrastructure Services
 
