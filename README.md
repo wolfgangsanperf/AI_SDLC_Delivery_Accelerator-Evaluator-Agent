@@ -144,6 +144,8 @@ The API will be available at:
   "session_id": "unique-session-id",
   "backlog_type": "user_story",
   "user_prompt": "Create a user story for login functionality",
+  "system_prompt": <system_prompt>,
+  "template": <template>,
   "generated_content": {
     "title": "User Login Story",
     "formatted_output": "## User Story\nAs a user, I want to log in..."
