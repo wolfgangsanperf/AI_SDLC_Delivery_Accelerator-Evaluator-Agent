@@ -1,0 +1,117 @@
+[tool.poetry]
+name = "sdlc-ai-delivery-accelerator"
+version = "0.1.0"
+description = "Python service for SDLC Delivery Accelerator"
+readme = "README.md"
+packages = [{include = "src"}]
+
+[tool.poetry.dependencies]
+python = ">=3.12,<3.14"
+fastapi = "^0.116.1"
+uvicorn = {extras = ["standard"], version = "^0.35.0"}
+pydantic = "^2.11.7"
+pydantic-settings = "^2.7.0"
+haystack-ai = "^2.17.1"
+langchain = "^0.3.27"
+langchain-community = "^0.3.27"
+langchain-openai = "^0.3.31"
+langchain-anthropic = "^0.3.19"
+langchain-google-genai = "^2.1.9"
+langchain-postgres = "^0.0.15"
+langchain-redis= "^0.2.3"
+llama-index = "^0.13.3"
+langgraph = "^0.6.6"
+sentence-transformers = "5.1.0"
+psycopg2-binary = "^2.9.9"
+asyncpg = "^0.30.0"
+redis = {extras = ["hiredis"], version = "^6.4.0"}
+sqlalchemy = "^2.0.43"
+alembic = "^1.16.4"
+celery = "^5.4.0"
+httpx = "^0.28.0"
+tenacity = "^9.0.0"
+python-multipart = "^0.0.20"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+prometheus-client = "^0.22.1"
+opentelemetry-api = "^1.36.0"
+opentelemetry-sdk = "^1.36.0"
+opentelemetry-instrumentation-fastapi = "^0.57b0"
+structlog = "^25.4.0"
+unstructured = "^0.18.13"
+pinecone = "^7.3.0"
+weaviate = "^0.1.2"
+crewai = "^0.165.1"
+portkey-ai = "^1.14.4"
+deepeval = "^3.4.7"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.0"
+pytest-asyncio = "^1.1.0"
+pytest-cov = "^6.0.0"
+black = "^25.1.0"
+isort = "6.0.1"
+flake8 = "^7.1.0"
+mypy = "^1.13.0"
+pre-commit = "^4.0.0"
+pytest-mock = "^3.14.0"
+httpx = "^0.28.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 100
+target-version = ['py313']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 100
+known_first_party = ["ai_core"]
+
+[tool.mypy]
+python_version = "3.13"
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q --cov=ai_core --cov-report=term-missing"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/migrations/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+]

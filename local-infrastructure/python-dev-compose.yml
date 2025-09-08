@@ -1,0 +1,94 @@
+services:
+  # PostgreSQL with pgvector extension
+  postgres:
+    image: docker.io/pgvector/pgvector:pg17
+    container_name: python-dev-postgres
+    environment:
+      POSTGRES_DB: sdlc_backlog_module
+      POSTGRES_USER: sdlc_user
+      POSTGRES_PASSWORD: sdlc_password
+      POSTGRES_MULTIPLE_DATABASES: ai_core,n8n
+      PGDATA: /var/lib/postgresql/data/pgdata
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./volumes/postgresql/data:/var/lib/postgresql/data
+      - ./python-init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - python-dev-network
+    security_opt:
+      - label=disable
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sdlc_user -d sdlc_backlog_module"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching and session management
+  redis:
+    image: docker.io/redis:8.2.0-alpine
+    container_name: python-dev-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./volumes/redis/data:/data
+    networks:
+      - python-dev-network
+    security_opt:
+      - label=disable
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  # n8n for workflow automation
+  n8n:
+    image: docker.io/n8nio/n8n:1.107.2
+    container_name: python-dev-n8n
+    ports:
+      - "5678:5678"
+    environment:
+      N8N_HOST: localhost
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+      N8N_ENCRYPTION_KEY: sdlc_n8n_encryption_key_change_in_production
+      N8N_BASIC_AUTH_ACTIVE: true
+      N8N_BASIC_AUTH_USER: sdlc_user
+      N8N_BASIC_AUTH_PASSWORD: sdlc_password
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: true
+      N8N_RUNNERS_ENABLED: true
+      N8N_SECURE_COOKIE: false
+      WEBHOOK_URL: http://localhost:5678/
+      GENERIC_TIMEZONE: America/Bogota
+      TZ: America/Bogota
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: n8n
+      DB_POSTGRESDB_SCHEMA: public
+      DB_POSTGRESDB_USER: sdlc_user
+      DB_POSTGRESDB_PASSWORD: sdlc_password
+    volumes:
+      - ./volumes/n8n/data:/home/node/.n8n
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - python-dev-network
+    restart: unless-stopped
+    security_opt:
+      - label=disable
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+
+networks:
+  python-dev-network:
+    driver: bridge
