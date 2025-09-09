@@ -207,12 +207,7 @@ The API will be available at:
         }
       ],
       "summary": "High-quality user story with excellent relevance and minimal hallucination risk. Requires enhanced acceptance criteria for completeness.",
-      "recommendations": [
-        "Add specific acceptance criteria with measurable outcomes",
-        "Include comprehensive error handling scenarios",
-        "Define detailed user authentication requirements",
-        "Enhance edge case documentation"
-      ]
+      "recommendations": "Add specific acceptance criteria with measurable outcomes" 
     },
     "evaluation_metadata": {
       "tokens_used": 180,

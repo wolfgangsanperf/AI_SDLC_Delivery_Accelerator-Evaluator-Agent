@@ -69,7 +69,7 @@ class EvaluationResult(BaseModel):
     overall_score: float = Field(..., ge=0.0, le=1.0)
     metric_scores: List[MetricScore]
     summary: str
-    recommendations: List[str]
+    recommendations: str
     evaluation_timestamp: str
     evaluation_metadata: Dict[str, Any] = Field(default_factory=dict)
 

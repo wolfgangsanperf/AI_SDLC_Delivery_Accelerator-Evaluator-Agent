@@ -384,13 +384,13 @@ class DeepEvalEvaluator:
             logger.error(f"Error generating summary: {str(e)}")
             return "Evaluation completed with mixed results. Review individual metric scores for details."
     
-    async def _generate_recommendations(self, metric_scores: List[MetricScore], evaluation_input: EvaluationInput) -> List[str]:
+    async def _generate_recommendations(self, metric_scores: List[MetricScore], evaluation_input: EvaluationInput) -> str:
         """Generate improvement recommendations using centralized API client"""
         try:
             low_scores = [score for score in metric_scores if score.score < 0.7]
             
             if not low_scores:
-                return ["Content quality is good. Consider minor refinements based on specific project requirements."]
+                return "Content quality is good. Consider minor refinements based on specific project requirements."
             
             recommendations_text = "\n".join([f"- {score.metric} (Score: {score.score:.2f})" + (f": {score.reasoning}" if score.reasoning else "") for score in low_scores])
             
@@ -404,10 +404,10 @@ class DeepEvalEvaluator:
             
             response_content = await self.api_client.call_for_recommendations(prompt)
             
-            # Split response into individual recommendations
+            # Split response into individual recommendations and join them with newlines
             recommendations = [rec.strip() for rec in response_content.split('\n') if rec.strip() and not rec.strip().startswith('#')]
-            return recommendations[:5]  # Limit to 5 recommendations
+            return "\n".join(recommendations[:5])  # Limit to 5 recommendations and join as single string
             
         except Exception as e:
             logger.error(f"Error generating recommendations: {str(e)}")
-            return ["Review content for accuracy and completeness", "Improve clarity and structure", "Ensure alignment with requirements"]
+            return "Review content for accuracy and completeness. Improve clarity and structure. Ensure alignment with requirements."
