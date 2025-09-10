@@ -12,9 +12,9 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .models import EvaluationInput, StandardizedEvaluationResponse, HealthCheckResponse, HealthCheckBody, GeneratorModel, EvaluationResponseBody, EvaluationMetadata
-from .evaluators import DeepEvalEvaluator
-from .config import API_TITLE, API_DESCRIPTION, API_VERSION, HOST, PORT, RELOAD, LOG_LEVEL, logger, PORTKEY_MODEL
+from src.models import EvaluationInput, StandardizedEvaluationResponse, HealthCheckResponse, HealthCheckBody, GeneratorModel, EvaluationResponseBody, EvaluationMetadata
+from src.evaluators import DeepEvalEvaluator
+from src.config import API_TITLE, API_DESCRIPTION, API_VERSION, HOST, PORT, RELOAD, LOG_LEVEL, logger, PORTKEY_MODEL
 
 
 # Initialize FastAPI application
@@ -34,7 +34,7 @@ app.add_middleware(
 )
 
 
-@app.post("/evaluate", response_model=StandardizedEvaluationResponse)
+@app.post("/validate/backlog-item-generated", response_model=StandardizedEvaluationResponse)
 async def evaluate_content(evaluation_input: EvaluationInput):
     """
     Evaluate generated content based on multiple quality metrics.
@@ -235,5 +235,5 @@ if __name__ == "__main__":
         host=HOST,
         port=PORT,
         reload=RELOAD,
-        log_level=LOG_LEVEL
+        log_level="debug"
     )

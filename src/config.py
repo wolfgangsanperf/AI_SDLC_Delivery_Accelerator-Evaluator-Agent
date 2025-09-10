@@ -15,7 +15,7 @@ API_VERSION = "1.0.0"
 
 # Server Configuration
 HOST = "0.0.0.0"
-PORT = 8000
+PORT = 8040
 RELOAD = True
 LOG_LEVEL = "info"
 
