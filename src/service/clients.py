@@ -5,10 +5,18 @@ import asyncio
 from typing import List, Dict, Optional
 from portkey_ai import Portkey
 
-from .config import (
-    PORTKEY_API_KEY, PORTKEY_BASE_URL, PORTKEY_PROVIDER, PORTKEY_MODEL,
-    DEFAULT_TEMPERATURE, MAX_TOKENS_GENERATION, MAX_TOKENS_SUMMARY,
-    MAX_TOKENS_RECOMMENDATIONS, MAX_RETRIES, RETRY_DELAY, logger
+from src.config.config import (
+    PORTKEY_API_KEY,
+    PORTKEY_BASE_URL,
+    PORTKEY_PROVIDER,
+    PORTKEY_MODEL,
+    DEFAULT_TEMPERATURE,
+    MAX_TOKENS_GENERATION,
+    MAX_TOKENS_SUMMARY,
+    MAX_TOKENS_RECOMMENDATIONS,
+    MAX_RETRIES,
+    RETRY_DELAY,
+    logger
 )
 from .prompts import SYSTEM_PROMPTS
 

@@ -1,7 +1,7 @@
 """
 Evaluation prompts for different metrics used by the Response Evaluator Agent.
 """
-from .models import EvaluationMetric
+from src.api.backlog_evaluator_contracts import EvaluationMetric
 
 
 EVALUATION_PROMPTS = {

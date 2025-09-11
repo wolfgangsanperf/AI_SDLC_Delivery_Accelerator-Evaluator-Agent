@@ -1,6 +1,6 @@
-# Response Evaluator Agent API
+# AI SDLC Delivery Accelerator - Evaluator Agent
 
-A FastAPI-based service that evaluates generated content using LLM-as-a-judge methodology. This API provides comprehensive quality assessment across multiple evaluation metrics, making it ideal for assessing AI-generated software development artifacts like user stories, requirements, and backlog items.
+A sophisticated FastAPI-based microservice that evaluates AI-generated software development artifacts (user stories, epics, requirements) using **LLM-as-a-judge methodology**. This service provides comprehensive quality assessment across multiple evaluation metrics, ensuring generated content meets professional standards.
 
 ## 🚀 Features
 
@@ -11,6 +11,8 @@ A FastAPI-based service that evaluates generated content using LLM-as-a-judge me
 - **Retry Logic**: Robust error handling with exponential backoff
 - **Detailed Feedback**: Actionable recommendations for content improvement
 - **REST API**: Clean, well-documented API endpoints with OpenAPI/Swagger support
+- **Standardized Configuration**: Environment-driven configuration following microservice patterns
+- **Comprehensive Logging**: Structured logging with file and console output
 
 ## 📊 Evaluation Metrics
 
@@ -33,35 +35,24 @@ The API evaluates content across nine comprehensive quality dimensions with opti
 - **Good**: 0.7 - 0.8
 - **Needs Improvement**: < 0.7
 
-### Advanced Features
-
-**Intelligent Reasoning System**
-The API implements intelligent reasoning inclusion based on score thresholds:
-- **Scores ≥ 0.65**: The `reasoning` field is **excluded** from the response to keep high-performing metrics clean
-- **Scores < 0.65**: The `reasoning` field is **included** with detailed explanations for improvement areas
-
-**Dual Evaluation Modes**
-- **Validation Mode**: Binary proceed/reason format for template compliance checking
-- **Comprehensive Mode**: Full multi-metric evaluation with detailed scoring
-
-**Enhanced Security**
-- **Hallucination Detection**: Advanced detection of fabricated content (threshold: 0.8)
-- **Context Adherence**: Similarity validation against provided context (threshold: 0.7)
-- **Factual Grounding**: Confidence verification for factual claims (threshold: 0.6)
-
 ## 🏗️ Architecture
 
-The project follows a modular architecture with clear separation of concerns:
+The project follows a clean architecture with clear separation of concerns:
 
 ```
 src/
-├── main.py          # FastAPI application and endpoints
-├── models.py        # Pydantic models and data structures
-├── config.py        # Configuration settings and constants
-├── clients.py       # External API clients (Portkey)
-├── evaluators.py    # Core evaluation logic
-├── prompts.py       # LLM prompts for different metrics
-└── __init__.py      # Package initialization
+├── main.py                           # FastAPI application entry point
+├── api/                             # API layer
+│   ├── backlog_evaluator_api.py     # API controllers/routes
+│   └── backlog_evaluator_contracts.py # Pydantic models
+├── service/                         # Business logic layer
+│   ├── evaluation_service.py        # Core evaluation business logic
+│   ├── evaluators.py               # DeepEval evaluation engine
+│   ├── clients.py                  # External API clients
+│   └── prompts.py                  # LLM prompt templates
+├── config/                         # Configuration layer
+│   └── config.py                   # Standardized configuration
+└── utils/                          # Utility functions
 ```
 
 ## 🛠️ Technology Stack
@@ -70,92 +61,140 @@ src/
 - **Pydantic**: Data validation using Python type annotations
 - **DeepEval**: Evaluation framework for LLM applications
 - **Portkey AI**: LLM gateway for API management and routing
-- **LangChain**: Framework for developing LLM applications
 - **Uvicorn**: ASGI server for production deployment
 - **Poetry**: Dependency management and packaging
 
 ## 📋 Prerequisites
 
-- **Python**: 3.13.7 (verified compatible with 3.12.3+)
+- **Python**: 3.12+ (verified compatible with 3.13)
 - **Poetry**: For dependency management and virtual environment
-- **Podman/Docker**: For containerized services (optional)
-- **Environment**: Linux/WSL compatible (Ubuntu 24.04+ recommended)
+- **Portkey Account**: For LLM API access
+- **Environment**: Linux/WSL/macOS compatible
 
 ## 🚀 Quick Start
 
-### 1. Environment Setup
+### 1. Clone the Repository
 
 ```bash
-# Clone the repository
 git clone <repository-url>
-cd my-awesome-api
+cd AI_SDLC_Delivery_Accelerator-Evaluator-Agent
+```
 
-# Install dependencies
+### 2. Install Dependencies
+
+```bash
+# Install Poetry if you haven't already
+pip install poetry
+
+# Install project dependencies
 poetry install
+
+# Activate virtual environment
 poetry shell
 ```
 
-### 2. Environment Configuration
+### 3. Environment Configuration
 
-Create a `.env` file in the `src/` directory:
-
-```bash
-# Portkey AI Configuration
-PORTKEY_API_KEY=your_portkey_api_key_here
-PORTKEY_BASE_URL=https://your-portkey-gateway-url.com/v1
-
-# Optional: Application Configuration
-LOG_LEVEL=INFO
-DEBUG=False
-```
-
-### 3. Start Infrastructure Services (Optional)
-
-If you need the full development environment with databases:
+Create your environment configuration file:
 
 ```bash
-cd local-infrastructure
-podman-compose -f python-dev-compose.yml up -d
+# Copy the example environment file
+cp .env.example .env
+
+# Edit the .env file with your configuration
+nano .env  # or use your preferred editor
 ```
 
-### 4. Run the Application
+### 4. Configure Environment Variables
+
+Edit the `.env` file with your specific configuration:
+
+```bash
+# API Configuration
+API_HOST=0.0.0.0
+API_PORT=8010
+API_RELOAD=true
+LOG_LEVEL=info
+
+# LLM Provider Configuration (Required)
+PORTKEY_BASE_URL=https://your-portkey-gateway.com/v1
+PORTKEY_API_KEY=your_actual_portkey_api_key
+PORTKEY_MODEL=gpt-4o-mini
+PORTKEY_PROVIDER=@azure-openai
+
+# Application Behavior (Optional - defaults provided)
+DEFAULT_TEMPERATURE=0.6
+MAX_TOKENS_GENERATION=2000
+
+# Evaluation Thresholds (Optional - defaults provided)
+DEEPEVAL_THRESHOLD=0.7
+HALLUCINATION_THRESHOLD=0.8
+
+# Logging Configuration (Optional)
+LOG_FILE=evaluation_results.log
+CONSOLE_LOGGING=true
+```
+
+### 5. Start the Application
 
 ```bash
 # Development mode with auto-reload
-poetry run python src/main.py
+python -m src.main
 
 # Or using uvicorn directly
-poetry run uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+uvicorn src.main:app --host 0.0.0.0 --port 8010 --reload
 ```
 
 The API will be available at:
-- **API**: http://localhost:8000
-- **Interactive Docs**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
+- **API**: http://localhost:8010
+- **Interactive Docs**: http://localhost:8010/docs
+- **ReDoc**: http://localhost:8010/redoc
+
+## 🔧 Configuration Reference
+
+### Environment Variables
+
+#### API Configuration
+- `API_HOST` - Server host (default: 0.0.0.0)
+- `API_PORT` - Server port (default: 8010)
+- `API_RELOAD` - Enable auto-reload in development (default: true)
+- `LOG_LEVEL` - Logging level (default: info)
+
+#### LLM Provider Configuration (Required)
+- `PORTKEY_BASE_URL` - Portkey gateway URL (**Required**)
+- `PORTKEY_API_KEY` - Portkey API key (**Required**)
+- `PORTKEY_MODEL` - LLM model to use (default: gpt-4o-mini)
+- `PORTKEY_PROVIDER` - LLM provider (default: @azure-openai)
+
+#### Application Behavior
+- `DEFAULT_TEMPERATURE` - LLM temperature (default: 0.6)
+- `MAX_TOKENS_GENERATION` - Max tokens for generation (default: 2000)
+- `MAX_TOKENS_SUMMARY` - Max tokens for summary (default: 200)
+- `MAX_TOKENS_RECOMMENDATIONS` - Max tokens for recommendations (default: 300)
+
+#### Retry Configuration
+- `MAX_RETRIES` - Maximum retry attempts (default: 3)
+- `RETRY_DELAY` - Base retry delay in seconds (default: 1.0)
+- `EXPONENTIAL_BACKOFF` - Enable exponential backoff (default: true)
+
+#### Evaluation Configuration
+- `DEEPEVAL_THRESHOLD` - Pass/fail threshold for DeepEval metrics (default: 0.7)
+- `HALLUCINATION_THRESHOLD` - Minimum score for hallucination detection (default: 0.8)
+- `CONTEXT_SIMILARITY_THRESHOLD` - Minimum similarity to context (default: 0.7)
+- `FACTUAL_CONFIDENCE_THRESHOLD` - Minimum confidence for facts (default: 0.6)
+
+#### Logging Configuration
+- `LOG_FILE` - Log file name (default: evaluation_results.log)
+- `CONSOLE_LOGGING` - Enable console logging (default: true)
 
 ## 📖 API Usage
 
-### Evaluate Content
+### Health Check
 
-**POST** `/evaluate`
+Check if the service is running and healthy:
 
-```json
-{
-  "session_id": "unique-session-id",
-  "backlog_type": "user_story",
-  "user_prompt": "Create a user story for login functionality",
-  "system_prompt": <system_prompt>,
-  "template": <template>,
-  "generated_content": {
-    "title": "User Login Story",
-    "formatted_output": "## User Story\nAs a user, I want to log in..."
-  },
-  "context": [
-    {
-      "content": "Authentication requirements: OAuth2, multi-factor auth"
-    }
-  ]
-}
+```bash
+curl -X GET http://localhost:8010/validate/health
 ```
 
 **Response:**
@@ -163,168 +202,102 @@ The API will be available at:
 {
   "status": 200,
   "timestamp": "2025-01-09T21:35:00",
-  "message": "Evaluation completed successfully",
+  "message": "Health check passed successfully",
   "body": {
-    "session_id": "unique-session-id",
-    "backlog_type": "user_story",
-    "status": "completed",
-    "evaluation_metrics": {
-      "overall_score": 0.82,
-      "metric_scores": [
-        {
-          "metric": "relevance",
-          "score": 0.92,
-          "confidence": 0.95
-        },
-        {
-          "metric": "accuracy",
-          "score": 0.88,
-          "confidence": 0.90
-        },
-        {
-          "metric": "completeness",
-          "score": 0.45,
-          "reasoning": "Missing acceptance criteria and edge case handling",
-          "confidence": 0.85
-        },
-        {
-          "metric": "clarity",
-          "score": 0.90,
-          "confidence": 0.92
-        },
-        {
-          "metric": "hallucination_detection",
-          "score": 0.95,
-          "confidence": 0.88
-        },
-        {
-          "metric": "context_adherence",
-          "score": 0.87,
-          "confidence": 0.91
-        },
-        {
-          "metric": "factual_grounding",
-          "score": 0.79,
-          "confidence": 0.84
-        }
-      ],
-      "summary": "High-quality user story with excellent relevance and minimal hallucination risk. Requires enhanced acceptance criteria for completeness.",
-      "recommendations": "Add specific acceptance criteria with measurable outcomes" 
-    },
-    "evaluation_metadata": {
-      "tokens_used": 180,
-      "tokens_generated": 95,
-      "evaluation_time_ms": 1150,
-      "model_version": "gpt-4o-mini",
-      "evaluation_mode": "comprehensive"
+    "status": "healthy",
+    "generator_model": {
+      "name": "gpt-4o-mini",
+      "status": "loaded"
     }
   }
 }
 ```
 
-**Note**: In the example above, notice that:
-- High scores (≥ 0.65) like `relevance`, `accuracy`, and `clarity` have **no reasoning field**
-- Low scores (< 0.65) like `completeness` **include the reasoning field** with detailed explanations
+### Evaluate Content
 
-### Health Check
+Evaluate generated SDLC content:
 
-**GET** `/health`
-
-```json
-{
-  "status": "healthy",
-  "version": "1.0.0",
-  "timestamp": "2025-01-06T15:30:00",
-  "service": "Response Evaluator Agent"
-}
+```bash
+curl -X POST http://localhost:8010/validate/backlog-item-generated \
+  -H "Content-Type: application/json" \
+  -d '{
+    "session_id": "unique-session-id",
+    "backlog_type": "epic",
+    "user_prompt": "Create an epic for improving mobile app onboarding",
+    "system_prompt": "You are an expert evaluator...",
+    "template": "Create a comprehensive epic with...",
+    "generated_content": {
+      "title": "Mobile App Onboarding Enhancement",
+      "formatted_output": "## Epic: Mobile App Onboarding..."
+    },
+    "context": [
+      {
+        "content": "Current onboarding takes 15 minutes with 65% drop-off rate"
+      }
+    ]
+  }'
 ```
 
-### Metrics Information
+### Get Metrics Information
 
-**GET** `/metrics/info`
+Get information about evaluation metrics:
 
-Returns detailed information about available evaluation metrics and their weights.
-
-## 🔧 Configuration
-
-Key configuration options in `src/config.py` (Latest Version):
-
-```python
-# API Configuration
-API_TITLE = "Response Evaluator Agent"
-API_VERSION = "1.0.0"
-HOST = "0.0.0.0"
-PORT = 8000
-
-# Model Configuration
-PORTKEY_MODEL = "gpt-4o-mini"
-PORTKEY_PROVIDER = "@azure-openai"
-DEFAULT_TEMPERATURE = 0.6
-MAX_TOKENS_GENERATION = 2000
-MAX_TOKENS_SUMMARY = 200
-MAX_TOKENS_RECOMMENDATIONS = 300
-
-# Performance Configuration
-MAX_RETRIES = 3
-RETRY_DELAY = 1.0
-
-# Updated Evaluation Weights (9 Metrics)
-METRIC_WEIGHTS = {
-    "relevance": 0.18,
-    "accuracy": 0.15,
-    "completeness": 0.15,
-    "hallucination_detection": 0.12,
-    "clarity": 0.12,
-    "structure": 0.08,
-    "consistency": 0.08,
-    "context_adherence": 0.08,
-    "factual_grounding": 0.04
-}
-
-# Security & Quality Thresholds
-HALLUCINATION_THRESHOLD = 0.8          # Minimum score to pass hallucination detection
-CONTEXT_SIMILARITY_THRESHOLD = 0.7     # Minimum similarity to provided context
-FACTUAL_CONFIDENCE_THRESHOLD = 0.6     # Minimum confidence for factual claims
-DEEPEVAL_THRESHOLD = 0.7               # Pass/fail threshold for DeepEval metrics
+```bash
+curl -X GET http://localhost:8010/metrics/info
 ```
 
-### Threshold Explanations
+## 🧪 Testing
 
-**HALLUCINATION_THRESHOLD (0.8)**
-- **Purpose**: Detects fabricated or unsupported claims in generated content
-- **How it works**: Content scoring below 0.8 is flagged as potentially containing hallucinations
-- **Impact**: Higher threshold = stricter hallucination detection, more conservative evaluation
+### Quick Health Test
 
-**CONTEXT_SIMILARITY_THRESHOLD (0.7)**  
-- **Purpose**: Ensures generated content aligns with provided contextual information
-- **How it works**: Measures semantic similarity between generated content and input context
-- **Impact**: Content must be at least 70% similar to context to pass adherence checks
+```bash
+# Test basic connectivity
+curl -f http://localhost:8010/validate/health || echo "Service not responding"
+```
 
-**FACTUAL_CONFIDENCE_THRESHOLD (0.6)**
-- **Purpose**: Validates confidence level of factual claims made in the content
-- **How it works**: AI model's confidence in factual statements must exceed 60%
-- **Impact**: Low-confidence facts trigger reasoning explanations and lower scores
+### Integration Test
 
-**DEEPEVAL_THRESHOLD (0.7)**
-- **Purpose**: Binary pass/fail criterion for DeepEval framework metrics
-- **How it works**: Metrics scoring above 0.7 are considered "passing" quality
-- **Impact**: Used for quick quality gates and automated decision making
+Use the provided test request file:
 
-## 🐳 Infrastructure Services
+```bash
+# Test with sample evaluation request
+curl -X POST http://localhost:8010/validate/backlog-item-generated \
+  -H "Content-Type: application/json" \
+  -d @request_test/corrected_evaluation_request.json
+```
 
-The project includes containerized development services:
+### Load Testing with curl
+
+```bash
+# Simple load test
+for i in {1..10}; do
+  curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8010/validate/health
+done
+```
+
+### Configuration Test
+
+Verify environment variables are loaded correctly:
+
+```bash
+python -c "
+from src.config.config import config
+print(f'API Port: {config.api.port}')
+print(f'LLM Model: {config.provider.llm_model}')
+print('Configuration loaded successfully!')
+"
+```
+
+## 🐳 Infrastructure Services (Optional)
+
+The project includes containerized development services for advanced features:
 
 ### Services Included
 - **PostgreSQL** (port 5432): Database with pgvector extension
 - **Redis** (port 6379): Caching and session management
 - **n8n** (port 5678): Workflow automation platform
 
-### Service URLs
-- **n8n Workflow Editor**: http://localhost:5678
-  - Username: `sdlc_user`
-  - Password: `sdlc_password`
-
-### Podman Commands
+### Start Infrastructure
 
 ```bash
 cd local-infrastructure
@@ -332,47 +305,144 @@ cd local-infrastructure
 # Start all services
 podman-compose -f python-dev-compose.yml up -d
 
-# Stop all services
+# Or with Docker
+docker-compose -f python-dev-compose.yml up -d
+
+# Stop services
 podman-compose -f python-dev-compose.yml down
-
-# View logs
-podman logs python-dev-postgres
-podman logs python-dev-redis
-podman logs python-dev-n8n
 ```
 
-## 🧪 Development
+### Access Services
+- **n8n Workflow Editor**: http://localhost:5678
+  - Username: `sdlc_user`
+  - Password: `sdlc_password`
 
-### Code Structure
+## 📊 Monitoring and Logging
 
-The codebase follows Python best practices with:
-- **Type hints** throughout
-- **Docstrings** for all public functions
-- **Async/await** for I/O operations
-- **Error handling** with proper logging
-- **Modular design** for maintainability
+### Log Files
 
-### Adding New Metrics
+The application generates structured logs:
 
-To add a new evaluation metric:
+- **File**: `evaluation_results.log` (configurable via `LOG_FILE`)
+- **Console**: Real-time logging (configurable via `CONSOLE_LOGGING`)
+- **Format**: `timestamp - logger_name - level - message`
 
-1. Add the metric to `EvaluationMetric` enum in `models.py`
-2. Create a prompt template in `prompts.py`
-3. Add the metric weight in `config.py`
-4. Update the evaluator logic in `evaluators.py`
+### Log Levels
 
-### Running Tests
+Set via `LOG_LEVEL` environment variable:
+- `DEBUG`: Detailed debugging information
+- `INFO`: General information (default)
+- `WARNING`: Warning messages
+- `ERROR`: Error messages only
 
+### Monitoring Endpoints
+
+- **Health Check**: `GET /validate/health`
+- **Metrics Info**: `GET /metrics/info`
+- **API Documentation**: `GET /docs`
+
+## 🔍 Troubleshooting
+
+### Common Issues
+
+#### 1. Service Won't Start
+
+**Problem**: Application fails to start
 ```bash
-# Install dev dependencies
-poetry install --with dev
+# Check configuration
+python -c "from src.config.config import config; print('Config loaded')"
 
-# Run tests
-poetry run pytest
+# Check port availability
+lsof -i :8010
 
-# Run with coverage
-poetry run pytest --cov=src
+# Check logs
+tail -f evaluation_results.log
 ```
+
+#### 2. API Connection Issues
+
+**Problem**: API calls fail or timeout
+```bash
+# Verify service is running
+curl -f http://localhost:8010/validate/health
+
+# Check Portkey configuration
+echo "PORTKEY_API_KEY: $PORTKEY_API_KEY"
+echo "PORTKEY_BASE_URL: $PORTKEY_BASE_URL"
+```
+
+#### 3. Environment Variables Not Loading
+
+**Problem**: Configuration using defaults instead of .env values
+```bash
+# Verify .env file exists and is readable
+ls -la .env
+cat .env
+
+# Test environment loading
+python -c "import os; print(f'API_PORT: {os.getenv(\"API_PORT\", \"Not set\")}')"
+```
+
+#### 4. Import Errors
+
+**Problem**: Python import errors
+```bash
+# Ensure virtual environment is activated
+poetry shell
+
+# Reinstall dependencies
+poetry install --no-cache
+
+# Check Python path
+python -c "import sys; print('\n'.join(sys.path))"
+```
+
+#### 5. Logging Issues
+
+**Problem**: Logs not appearing or log file not created
+```bash
+# Check log file permissions
+touch evaluation_results.log
+ls -la evaluation_results.log
+
+# Test logging directly
+python -c "
+from src.config.config import logger
+logger.info('Test log message')
+print('Log test completed')
+"
+```
+
+### Performance Issues
+
+- **High Memory Usage**: Reduce `MAX_TOKENS_GENERATION`
+- **Slow Responses**: Check network connectivity to Portkey gateway
+- **Rate Limiting**: Adjust `RETRY_DELAY` and `MAX_RETRIES`
+
+### Getting Help
+
+1. **Check Logs**: Always check `evaluation_results.log` for detailed error information
+2. **Verify Configuration**: Ensure all required environment variables are set
+3. **Test Components**: Use the testing commands above to isolate issues
+4. **API Documentation**: Visit `/docs` endpoint for interactive API testing
+
+## 🤝 Development
+
+### Project Structure
+
+The project follows clean architecture principles:
+
+- **API Layer**: Handles HTTP requests/responses
+- **Service Layer**: Contains business logic
+- **Configuration**: Environment-driven settings
+- **Contracts**: Data models and validation
+
+### Adding New Features
+
+1. **New API Endpoints**: Add to `src/api/backlog_evaluator_api.py`
+2. **Business Logic**: Add to `src/service/evaluation_service.py`
+3. **Configuration**: Add environment variables to config dataclasses
+4. **Models**: Add Pydantic models to `src/api/backlog_evaluator_contracts.py`
 
 ### Code Quality
 
@@ -390,91 +460,14 @@ poetry run flake8 src/
 poetry run mypy src/
 ```
 
-## 📦 Deployment
-
-### Production Configuration
-
-For production deployment:
-
-1. Set environment variables:
-   ```bash
-   export PORTKEY_API_KEY=your_production_key
-   export PORTKEY_BASE_URL=your_production_url
-   export LOG_LEVEL=WARNING
-   ```
-
-2. Use a production ASGI server:
-   ```bash
-   poetry run gunicorn src.main:app -w 4 -k uvicorn.workers.UvicornWorker
-   ```
-
-### Docker Deployment
-
-```dockerfile
-FROM python:3.12-slim
-
-WORKDIR /app
-COPY pyproject.toml poetry.lock ./
-RUN pip install poetry && poetry install --only=main
-
-COPY src/ ./src/
-EXPOSE 8000
-
-CMD ["poetry", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
-```
-
-## 🔍 Monitoring and Logging
-
-The application provides comprehensive logging:
-
-- **File logging**: `evaluation_results.log`
-- **Console logging**: Structured JSON logs
-- **Request tracking**: Unique request IDs
-- **Performance metrics**: Evaluation timing
-- **Error tracking**: Detailed error context
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes following the code style
-4. Add tests for new functionality
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
-
 ## 📄 License
 
 This project is part of the SDLC AI Delivery Accelerator framework.
 
-## 🆘 Troubleshooting
+## 🆘 Support
 
-### Common Issues
-
-**API Connection Issues**
-- Verify `PORTKEY_API_KEY` and `PORTKEY_BASE_URL` are set correctly
-- Check network connectivity to the Portkey gateway
-- Review logs for specific error messages
-
-**Dependencies Issues**
-- Ensure Python 3.13.7+ is installed
-- Run `poetry install` to update dependencies
-- Use `poetry shell` to activate the virtual environment
-
-**Database Connection Issues**
-- Ensure infrastructure services are running: `podman-compose ps`
-- Check logs: `podman logs python-dev-postgres`
-- Verify port availability (5432, 6379, 5678)
-
-### Getting Help
-
-- Check the application logs in `evaluation_results.log`
-- Review the API documentation at `/docs`
-- Examine the health check endpoint at `/health`
-
-## 📚 Additional Resources
-
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [DeepEval Documentation](https://docs.deepeval.com/)
-- [Pydantic Documentation](https://docs.pydantic.dev/)
-- [Poetry Documentation](https://python-poetry.org/docs/)
+For issues and questions:
+1. Check the troubleshooting section above
+2. Review logs in `evaluation_results.log`
+3. Verify configuration with the testing commands
+4. Contact the development team with specific error messages and configuration details

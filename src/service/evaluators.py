@@ -11,10 +11,10 @@ from deepeval import evaluate
 from deepeval.metrics import AnswerRelevancyMetric, FaithfulnessMetric, ContextualPrecisionMetric, ContextualRecallMetric
 from deepeval.test_case import LLMTestCase
 
-from .models import EvaluationInput, EvaluationMetric, MetricScore, EvaluationResult
-from .clients import PortkeyAPIClient
-from .prompts import EVALUATION_PROMPTS
-from .config import DEEPEVAL_THRESHOLD, METRIC_WEIGHTS, logger
+from src.api.backlog_evaluator_contracts import EvaluationInput, EvaluationMetric, MetricScore, EvaluationResult
+from src.service.clients import PortkeyAPIClient
+from src.service.prompts import EVALUATION_PROMPTS
+from src.config.config import DEEPEVAL_THRESHOLD, METRIC_WEIGHTS, logger
 
 
 class DeepEvalEvaluator:
@@ -24,8 +24,8 @@ class DeepEvalEvaluator:
         # Initialize centralized API client
         self.api_client = PortkeyAPIClient()
         
-        # Test connection on initialization
-        asyncio.create_task(self._test_connection())
+        # Connection will be tested on first use instead of during initialization
+        self._connection_tested = False
             
     async def _test_connection(self):
         """Test API connection asynchronously"""
